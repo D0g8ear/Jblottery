@@ -187,7 +187,7 @@
         if (currentPrizeIndex < prizes.length) {
           drawPrize(); 
         } else {
-          let finalResult = '<strong>所以抽獎結果：</strong><br>';
+          let finalResult = '<strong>所有抽獎結果：</strong><br>';
           drawResults.forEach(result => {
             finalResult += `<p><br>${result.prize} ： <br>${result.winners.join('<br>')}</p>`;
           });
