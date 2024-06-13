@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>抽獎活動</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Jb抽獎活動</title>
 </head>
 <style>
     body {
@@ -104,58 +103,58 @@
         const drawButton = document.getElementById('start');
         const clearButton = document.getElementById('reset');
         const resultDisplay = document.getElementById('results');
-        let drawResults = []; // 全局变量用于存储所有抽奖结果
-        let currentPrizeIndex = 0; // 当前抽取的奖品索引
-        let participantsGlobal = []; // 全局变量用于存储参与者列表
+        let drawResults = []; 
+        let currentPrizeIndex = 0; 
+        let participantsGlobal = []; 
 
-    function drawPrize() {
-      let participantsText = document.getElementById('participantList').value.trim();
-      let prizesText = document.getElementById('prizeDetails').value.trim();
+      function drawPrize() {
+        let participantsText = document.getElementById('participantList').value.trim();
+        let prizesText = document.getElementById('prizeDetails').value.trim();
       
-      // 如果参与者列表为空，则初始化
-      if (participantsGlobal.length === 0) {
+        
+        if (participantsGlobal.length === 0) {
         participantsGlobal = participantsText.split('\n').map(participant => {
           let [name, rate] = participant.split(',').map(item => item.trim());
           return { name, rate: parseFloat(rate) };
         }).filter(participant => participant.name !== '' && !isNaN(participant.rate) && participant.rate > 0);
       }
       
-      // 将奖品列表转换为数组，每行作为一个元素
+      
       let prizes = prizesText.split('\n').map(prize => {
         let [name, count] = prize.split(',').map(item => item.trim());
         return { name, count: parseInt(count, 10) };
       }).filter(prize => prize.name !== '' && !isNaN(prize.count) && prize.count > 0);
       
-      // 检查输入是否正确
+      
       if (participantsGlobal.length === 0 || prizes.length === 0) {
-        resultDisplay.textContent = "请输入参與者和獎品列表。";
+        resultDisplay.textContent = "請输入参與者和獎品列表。";
         return;
       }
       
-      // 如果所有奖品都已经抽完
+      
       if (currentPrizeIndex >= prizes.length) {
         resultDisplay.textContent = "所有獎品都已經抽完。";
         return;
       }
       
-      // 抽取当前奖品
+      
       const currentPrize = prizes[currentPrizeIndex];
       const prizeName = currentPrize.name;
       const prizeCount = currentPrize.count;
       
-      // 验证参与者数量是否足够
+      
       if (participantsGlobal.length < prizeCount) {
-        resultDisplay.textContent = `参與者不足以抽出 ${prizeCount} 个 "${prizeName}"。`;
+        resultDisplay.textContent = `参與者不足以抽出 ${prizeCount} 個 "${prizeName}"。`;
         return;
       }
       
-      // 抽取中奖者，根据中奖倍率设置中奖概率
+      
       let winners = [];
       for (let i = 0; i < prizeCount; i++) {
-        // 总倍率
+        
         const totalRate = participantsGlobal.reduce((acc, participant) => acc + participant.rate, 0);
         
-        // 随机选择中奖者
+        
         let randomNumber = Math.random() * totalRate;
         let accumulatedRate = 0;
         let selectedParticipant = null;
@@ -169,27 +168,25 @@
           }
         }
         
-        // 从参与者中移除中奖者
+        
         participantsGlobal = participantsGlobal.filter(participant => participant.name !== selectedParticipant);
         
         winners.push(selectedParticipant);
       }
       
-      // 将中奖结果添加到全局变量中
+      
       drawResults.push({ prize: prizeName, winners });
       
-      // 显示当前奖品的中奖者
       resultDisplay.innerHTML = `${prizeName} ： <br>${winners.join('<br>')}`;
       resultDisplay.innerHTML += `<br><br><button id="nextButton">下一個</button>`;
       
-      // 监听抽下一个奖品按钮的点击事件
+      
       const nextButton = document.getElementById('nextButton');
       nextButton.addEventListener('click', () => {
-        currentPrizeIndex++; // 切换到下一个奖品
+        currentPrizeIndex++; 
         if (currentPrizeIndex < prizes.length) {
-          drawPrize(); // 抽取下一个奖品
+          drawPrize(); 
         } else {
-          // 所有奖品抽完，显示所有抽奖结果
           let finalResult = '<strong>所以抽獎結果：</strong><br>';
           drawResults.forEach(result => {
             finalResult += `<p><br>${result.prize} ： <br>${result.winners.join('<br>')}</p>`;
