@@ -7,84 +7,84 @@
 </head>
 <style>
     body {
-        font-family: Arial, sans-serif;
-        background-color: black;
-        color: #333;
+      font-family: Arial, sans-serif;
+      background-color: black;
+      color: #333;
     }
     
     .container {
-        width: 80%;
-        margin: 0 auto;
-        border:white 5px solid;
-        background-color: black;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        color:white;
+      width: 80%;
+      margin: 0 auto;
+      border:white 5px solid;
+      background-color: black;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      color:white;
     }
     h1{
-        color: white;
-        text-align: center;
+      color: white;
+      text-align: center;
     }
     .header, .prize-section, .participants-section, .result-section {
-        margin-bottom: 20px;
+      margin-bottom: 20px;
     }
     
     label {
-        display: block;
-        margin-bottom: 5px;
-        font-weight: bold;
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
     }
     
     input[type="text"], textarea {
-        width: 100%;
-        padding: 10px;
-        margin-bottom: 10px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
     }
     
     button {
-        padding: 10px 20px;
-        border: none;
-        background-color: #007bff;
-        color: #fff;
-        border-radius: 5px;
-        cursor: pointer;
+      padding: 10px 20px;
+      border: none;
+      background-color: #007bff;
+      color: #fff;
+      border-radius: 5px;
+      cursor: pointer;
     }
     
     button:hover {
-        background-color: #0056b3;
+      background-color: #0056b3;
     }
     
     .result-section h2 {
-        margin-bottom: 10px;
+      margin-bottom: 10px;
     }
     
     #results {
-        color: black;
-        background-color: #e9ecef;
-        padding: 10px;
-        border-radius: 5px;
+      color: black;
+      background-color: #e9ecef;
+      padding: 10px;
+      border-radius: 5px;
     }
 
     textarea{
-        width: 98%;
-        padding: 10px;
-        margin-bottom: 10px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        font-size: 14px;
+      width: 98%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 14px;
     }
     .roger{
-        width: 80%;
-        margin: 0 auto;
-        background-color: black;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        color:white;
-        text-align: center;
+      width: 80%;
+      margin: 0 auto;
+      background-color: black;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      color:white;
+      text-align: center;
     }
     img{
       display: flex;
@@ -92,7 +92,19 @@
       max-width: 100%;
       height: auto;
     }
-    
+    .custom-file-upload {
+    display: inline-block;    
+    padding: 5px 12px;
+    border: none;
+    background-color: #007bff;
+    color: #fff;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 12px;
+  }
+  .custom-file-upload:hover {
+    background-color: #0056b3;
+  }
 </style>
 
 <body>
@@ -100,6 +112,10 @@
     <div class="container">
         <div class="participants-section">
             <label for="participantList">待抽名單：</label>
+            <label for="fileInput" class="custom-file-upload">
+              <i class="fa fa-cloud-upload"></i> 選擇CSV檔
+            </label>
+            <input type="file" id="fileInput" onchange="handleFileSelect(event)" style="display: none;">
             <textarea id="participantList" name="participantList" rows="10" placeholder="ID, 月數"></textarea>
             <p id="count">總人數：0</p>
         </div>
@@ -122,6 +138,7 @@
     </div>
 
     <script>
+      //initialization
         const drawButton = document.getElementById('start');
         const clearButton = document.getElementById('reset');
         const resultDisplay = document.getElementById('results');
@@ -129,6 +146,7 @@
         let currentPrizeIndex = 0; 
         let participantsGlobal = [];
 
+        //Calculate the total
         document.addEventListener('DOMContentLoaded', (event) => {
           const textarea = document.getElementById('participantList');
           updateLineCount(textarea);
@@ -146,35 +164,49 @@
               document.getElementById('count').textContent = '總人數： ' + lineCount;
           }
         }
-
+        // load csv file
+        function handleFileSelect(event) {
+          var file = event.target.files[0];
+          var reader = new FileReader();
+          reader.onload = function(e) {
+              var csvContent = e.target.result;
+              document.getElementById('participantList').value = csvContent;
+              calculateDataCount(csvContent);
+          };
+          reader.readAsText(file);
+        }
+        //count
+        function calculateDataCount(csvContent) {
+          var lines = csvContent.split('\n');
+          var dataCount = lines.length;
+          document.getElementById('count').textContent = '總人數： ' + dataCount;
+        }
+        //lock
         function lockButtons() {
           drawButton.disabled = true;
         }
-
+        //unlock
         function unlockButtons() {
           drawButton.disabled = false;
           clearButton.disabled = false;
         }
-
+        //lottery
         function drawPrize() {
           lockButtons();
           let participantsText = document.getElementById('participantList').value.trim();
           let prizesText = document.getElementById('prizeDetails').value.trim();
       
-        
           if (participantsGlobal.length === 0) {
             participantsGlobal = participantsText.split('\n').map(participant => {
             let [name, rate] = participant.split(',').map(item => item.trim());
             return { name, rate: parseFloat(rate) };}).filter(participant => participant.name !== '' && !isNaN(participant.rate) && participant.rate > 0);
           }
       
+          let prizes = prizesText.split('\n').map(prize => {
+          let [name, count] = prize.split(',').map(item => item.trim());
+          return { name, count: parseInt(count, 10) };}).filter(prize => prize.name !== '' && !isNaN(prize.count) && prize.count > 0);
       
-        let prizes = prizesText.split('\n').map(prize => {
-        let [name, count] = prize.split(',').map(item => item.trim());
-        return { name, count: parseInt(count, 10) };}).filter(prize => prize.name !== '' && !isNaN(prize.count) && prize.count > 0);
-      
-      
-        if (participantsGlobal.length === 0 || prizes.length === 0) {
+          if (participantsGlobal.length === 0 || prizes.length === 0) {
           resultDisplay.textContent = "請输入参與者和獎品列表。";
           return;
         }
