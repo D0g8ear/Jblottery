@@ -232,12 +232,12 @@
           accumulatedRate += participant.rate;
           
           if (randomNumber <= accumulatedRate) {
-            selectedParticipant = participant.name;
+            selectedParticipant = participant;
             break;
           }
         }      
-        participantsGlobal = participantsGlobal.filter(participant => participant.name !== selectedParticipant);
-        winners.push(selectedParticipant);
+        participantsGlobal = participantsGlobal.filter(participant => participant.name !== selectedParticipant.name);
+        winners.push(`${selectedParticipant.name} (${selectedParticipant.rate} 月)`);
       }
       
       drawResults.push({ prize: prizeName, winners });
