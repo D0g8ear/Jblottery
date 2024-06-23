@@ -11,7 +11,6 @@
       background-color: black;
       color: #333;
     }
-    
     .container {
       width: 80%;
       margin: 0 auto;
@@ -43,7 +42,6 @@
       border: 1px solid #ccc;
       border-radius: 5px;
     }
-    
     button {
       padding: 10px 20px;
       border: none;
@@ -52,22 +50,18 @@
       border-radius: 5px;
       cursor: pointer;
     }
-    
     button:hover {
       background-color: #0056b3;
-    }
-    
+    } 
     .result-section h2 {
       margin-bottom: 10px;
     }
-    
     #results {
       color: black;
       background-color: #e9ecef;
       padding: 10px;
       border-radius: 5px;
     }
-
     textarea{
       width: 98%;
       padding: 10px;
@@ -106,7 +100,6 @@
     background-color: #0056b3;
   }
 </style>
-
 <body>
     <h1>JB 抽獎</h1>
     <div class="container">
@@ -123,7 +116,6 @@
             <label for="prizeDetails">獎項內容：</label>
             <textarea id="prizeDetails" name="prizeDetails" rows="5" placeholder="項目, 數量"></textarea>
         </div>
-        
         <div class="result-section">
             <h2>中獎結果：</h2>
             <p id="results"></p>
@@ -139,75 +131,76 @@
 
     <script>
       //initialization
-        const drawButton = document.getElementById('start');
-        const clearButton = document.getElementById('reset');
-        const resultDisplay = document.getElementById('results');
-        let drawResults = []; 
-        let currentPrizeIndex = 0; 
-        let participantsGlobal = [];
+      const drawButton = document.getElementById('start');
+      const clearButton = document.getElementById('reset');
+      const resultDisplay = document.getElementById('results');
+      let drawResults = []; 
+      let currentPrizeIndex = 0; 
+      let participantsGlobal = [];
 
-        //Calculate the total
-        document.addEventListener('DOMContentLoaded', (event) => {
-          const textarea = document.getElementById('participantList');
-          updateLineCount(textarea);
-        });
-        document.getElementById('participantList').addEventListener('input', (event) => {
-          const textarea = event.target;
-          updateLineCount(textarea);
-        });
+      //Calculate the total
+      document.addEventListener('DOMContentLoaded', (event) => {
+        const textarea = document.getElementById('participantList');
+        updateLineCount(textarea);
+      });
+      document.getElementById('participantList').addEventListener('input', (event) => {
+        const textarea = event.target;
+        updateLineCount(textarea);
+      });
 
-        function updateLineCount(textarea) {
-          if (textarea.value.trim() === '') {
-              document.getElementById('count').textContent = '總人數 : 0';
-          } else {
-              const lineCount = textarea.value.split('\n').length;
-              document.getElementById('count').textContent = '總人數： ' + lineCount;
+      function updateLineCount(textarea) {
+        if (textarea.value.trim() === '') {
+          document.getElementById('count').textContent = '總人數 : 0';
+        }else{
+            const lineCount = textarea.value.split('\n').length;
+            document.getElementById('count').textContent = '總人數： ' + lineCount;
           }
+      }
+      //count
+      function calculateDataCount(csvContent) {
+        var lines = csvContent.split('\n');
+        var dataCount = lines.length;
+        document.getElementById('count').textContent = '總人數： ' + dataCount;
+      }
+      // load csv file
+      function handleFileSelect(event) {
+        var file = event.target.files[0];
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            var csvContent = e.target.result;
+            document.getElementById('participantList').value = csvContent;
+            calculateDataCount(csvContent);
+        };
+        reader.readAsText(file);
+      }
+      //lock
+      function lockButtons() {
+        drawButton.disabled = true;
+        clearButton.disabled = false;
+      }
+      //unlock
+      function unlockButtons() {
+        drawButton.disabled = false;
+        clearButton.disabled = false;
+      }
+      //lottery
+      function drawPrize() {
+        lockButtons();
+        let participantsText = document.getElementById('participantList').value.trim();
+        let prizesText = document.getElementById('prizeDetails').value.trim();
+          
+        if (participantsGlobal.length === 0) {
+          participantsGlobal = participantsText.split('\n').map(participant => {
+          let [name, rate] = participant.split(',').map(item => item.trim());
+          return { name, rate: parseFloat(rate) };}).filter(participant => participant.name !== '' && !isNaN(participant.rate) && participant.rate > 0);
         }
-        // load csv file
-        function handleFileSelect(event) {
-          var file = event.target.files[0];
-          var reader = new FileReader();
-          reader.onload = function(e) {
-              var csvContent = e.target.result;
-              document.getElementById('participantList').value = csvContent;
-              calculateDataCount(csvContent);
-          };
-          reader.readAsText(file);
-        }
-        //count
-        function calculateDataCount(csvContent) {
-          var lines = csvContent.split('\n');
-          var dataCount = lines.length;
-          document.getElementById('count').textContent = '總人數： ' + dataCount;
-        }
-        //lock
-        function lockButtons() {
-          drawButton.disabled = true;
-        }
-        //unlock
-        function unlockButtons() {
-          drawButton.disabled = false;
-          clearButton.disabled = false;
-        }
-        //lottery
-        function drawPrize() {
-          lockButtons();
-          let participantsText = document.getElementById('participantList').value.trim();
-          let prizesText = document.getElementById('prizeDetails').value.trim();
       
-          if (participantsGlobal.length === 0) {
-            participantsGlobal = participantsText.split('\n').map(participant => {
-            let [name, rate] = participant.split(',').map(item => item.trim());
-            return { name, rate: parseFloat(rate) };}).filter(participant => participant.name !== '' && !isNaN(participant.rate) && participant.rate > 0);
-          }
+        let prizes = prizesText.split('\n').map(prize => {
+        let [name, count] = prize.split(',').map(item => item.trim());
+        return { name, count: parseInt(count, 10) };}).filter(prize => prize.name !== '' && !isNaN(prize.count) && prize.count > 0);
       
-          let prizes = prizesText.split('\n').map(prize => {
-          let [name, count] = prize.split(',').map(item => item.trim());
-          return { name, count: parseInt(count, 10) };}).filter(prize => prize.name !== '' && !isNaN(prize.count) && prize.count > 0);
-      
-          if (participantsGlobal.length === 0 || prizes.length === 0) {
-          resultDisplay.textContent = "請输入参與者和獎品列表。";
+        if (participantsGlobal.length === 0 || prizes.length === 0) {
+          resultDisplay.textContent = "請輸入参與者和獎品列表。";
           return;
         }
 
@@ -222,54 +215,50 @@
       
         let winners = [];
         for (let i = 0; i < prizeCount; i++) {
-        const totalRate = participantsGlobal.reduce((acc, participant) => acc + participant.rate, 0);
+          const totalRate = participantsGlobal.reduce((acc, participant) => acc + participant.rate, 0);
         
-        let randomNumber = Math.random() * totalRate;
-        let accumulatedRate = 0;
-        let selectedParticipant = null;
+          let randomNumber = Math.random() * totalRate;
+          let accumulatedRate = 0;
+          let selectedParticipant = null;
         
-        for (let participant of participantsGlobal) {
-          accumulatedRate += participant.rate;
-          
-          if (randomNumber <= accumulatedRate) {
+          for (let participant of participantsGlobal) {
+            accumulatedRate += participant.rate;
+            if (randomNumber <= accumulatedRate) {
             selectedParticipant = participant;
             break;
-          }
-        }      
-        participantsGlobal = participantsGlobal.filter(participant => participant.name !== selectedParticipant.name);
-        winners.push(`${selectedParticipant.name} (${selectedParticipant.rate} 月)`);
-      }
+            }
+          }      
+          participantsGlobal = participantsGlobal.filter(participant => participant.name !== selectedParticipant.name);
+          winners.push(`${selectedParticipant.name} (${selectedParticipant.rate} 月)`);
+        }
       
-      drawResults.push({ prize: prizeName, winners });
+        drawResults.push({ prize: prizeName, winners });
       
-      resultDisplay.innerHTML = `${prizeName} ： <br>${winners.join('<br>')}`;
-      resultDisplay.innerHTML += `<br><br><button id="nextButton">下一個</button>`;
-      const nextButton = document.getElementById('nextButton');
-      nextButton.addEventListener('click', () => {
+        resultDisplay.innerHTML = `${prizeName} ： <br>${winners.join('<br>')}`;
+        resultDisplay.innerHTML += `<br><br><button id="nextButton">下一個</button>`;
+        const nextButton = document.getElementById('nextButton');
+        nextButton.addEventListener('click', () => {
         currentPrizeIndex++; 
         if (currentPrizeIndex < prizes.length) {
-          drawPrize(); 
-        } else {
+          drawPrize();
+          }else {
           let finalResult = '<strong>所有抽獎結果：</strong><br>';
-          drawResults.forEach(result => {
-            finalResult += `<p><strong>${result.prize} ： <br>${result.winners.join('<br>')}</p>`;
-          });
-          resultDisplay.innerHTML = finalResult;
-          unlockButtons();
-        }
+            drawResults.forEach(result => {
+              finalResult += `<p><strong>${result.prize} ： <br>${result.winners.join('<br>')}</p>`;
+            });
+            resultDisplay.innerHTML = finalResult;
+            unlockButtons();
+          }
+        });
+      }
+      drawButton.addEventListener('click', drawPrize);
+      clearButton.addEventListener('click', () => {
+        drawResults = [];
+        currentPrizeIndex = 0;
+        participantsGlobal = [];
+        resultDisplay.innerHTML = '';
+        unlockButtons();
       });
-    }
-
-    drawButton.addEventListener('click', drawPrize);
-    clearButton.addEventListener('click', () => {
-      drawResults = [];
-      currentPrizeIndex = 0;
-      participantsGlobal = [];
-      resultDisplay.innerHTML = '';
-      unlockButtons();
-    });
-
-    
     </script>
 </body>
 </html>
